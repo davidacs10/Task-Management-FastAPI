@@ -17,13 +17,11 @@ async def user():
 
 @router.get("/{id}")
 async def user_by_id(id: int):
-    return search(id)
+    return search_id(id)
 
 @router.post("/", response_model=User, status_code=201)
 async def create_user(user: User):
-
-    for existing_user in users_list:
-        if existing_user.id == user.id:
+    if type(search_id(user.id)) == User:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                                 detail="Ya existe un usuario con ese ID")
     
@@ -32,17 +30,9 @@ async def create_user(user: User):
 
 
 # Search
-def search(id: int):
-    for user in users_list:
-        if user.id == id:
-            return user
-        
-    return {"error": "User not found"}
-
-    # users = filter(lambda user: user.id == id, list_user)
-    # try:
-    #     return list(users)[0]
-    # except:
-    #     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-    #                         detail="User not found",
-    #                         headers={"404":"Not Found"})
+def search_id(id: int):
+    users = filter(lambda user: user.id == id, users_list)
+    try:
+        return list(users)[0]
+    except:
+        return {"error": "User not found"}
