@@ -18,7 +18,9 @@ class UserInDB(UserBase):
 users_list = [UserIn(id=1, username="david01", password="123456", email="david11@dev.com"),
               UserIn(id=2, username="david02", password="654321", email="david10@dev.com"),]
 
-router = APIRouter(prefix="/users")
+router = APIRouter(prefix="/users",
+                   tags=["User"],
+                   responses={status.HTTP_404_NOT_FOUND:{"message": "Not found"}})
 
 @router.get("/")
 async def user():
@@ -67,5 +69,7 @@ def search_id(id: int):
     users = filter(lambda user: user.id == id, users_list)
     try:
         return list(users)[0]
-    except:
-        return {"error": "User not found"}
+    except IndexError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                        detail="User not found",
+                        headers={"404":"User not found"})
