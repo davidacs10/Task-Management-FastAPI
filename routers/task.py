@@ -8,7 +8,7 @@ class Task(BaseModel):
     title: str
     description: Optional[str] = None
     due_date: Optional[datetime] = None
-    remaining_time: Optional[timedelta] = None
+    time_remaining: Optional[timedelta] = None
     status: str
 
 
@@ -18,16 +18,18 @@ router = APIRouter(prefix="/tasks",
                    responses={status.HTTP_404_NOT_FOUND:{"message": "Not found"}})
 
 task_list = [Task(id=1, title="Clean the room", description="Here goes task description", 
-                  due_date=datetime(2024, 3, 10), status="Pending"),
+                  due_date="2024-03-07", status="Pending"),
              Task(id=2, title="Clean the kitchen", description="it should be clean", 
-                  due_date=datetime(2024, 3, 8), status="Pending")]
+                  due_date="2024-03-08", status="Pending")]
 
 
 @router.get("/")
 async def task():
-    now = datetime.now()
     for task in task_list:
-        task.remaining_time = task.due_date - now
+        if task.due_date:
+            due_date = datetime.strptime(task.due_date, "%Y-%m-%d")
+            time_remaining = due_date - datetime.now()
+            task.time_remaining = time_remaining
     return task_list
 
 @router.get("/{id}")
